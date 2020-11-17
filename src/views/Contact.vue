@@ -12,7 +12,7 @@
           </template>
         </div>
        
-        <button class="btn btn-green" @click="showForm = !showForm">
+        <button class="btn btn-field" @click="showForm = !showForm">
           Добавить поле
         </button>
          
@@ -32,7 +32,7 @@
               class="form-input"
               v-model="fieldValue"
             />
-            <button class="btn btn-green">Добавить</button>
+            <button class="btn btn-green btn-add">Добавить</button>
           </div>
         </form>
         <div class="panel">

@@ -21,9 +21,11 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
+  
   background-color: rgba(250, 245, 245, 0.589);
 }
 .modal-content{
+  padding: 10px 30px;
   z-index: 9999;
   position: absolute;
   top: 50%;
@@ -32,9 +34,19 @@ export default {
   background-color: white;
   box-shadow: 0px 0px 10px black;
   border-radius: 10px;
-  padding: 10px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+}
+.modal-content > *{
+  margin-bottom: 10px;
+}
+@media screen and (max-width: 400px) {
+  .modal-content{
+    width: 90%;
+  }
+  .modal-content .btn{
+    width: 100%;
+  }
 }
 </style>

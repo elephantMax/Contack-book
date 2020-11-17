@@ -18,6 +18,7 @@ body {
   background-color: rgb(0, 174, 255);
   padding: 15px 10px;
   color: white;
+  z-index: 9999;
   box-shadow: 0px 3px 10px black;
 }
 
@@ -100,6 +101,10 @@ body {
   color: white;
   background-color: rgb(0, 174, 255);
 }
+.btn-field{
+  background-color: #fff;
+  width: 90%;
+}
 
 .contacts {
   border-collapse: separate;
@@ -139,22 +144,31 @@ body {
 @media screen and (max-width: 400px) {
   .form {
     width: 100%;
-  }
-
-  .form-group {
     flex-direction: column;
     flex-wrap: wrap;
-    align-items: center !important;
+    
+  }
+  .form-group {
+    flex-wrap: wrap;
     margin-bottom: 10px;
   }
-
   .form-group label {
-    flex-basis: 30%;
+    text-align: left;
+    flex-basis: 90%;
   }
   .container {
     width: 100%;
   }
   .panel .btn{
     flex-basis: 30%;
+  }
+  .btn-field{
+    width: 100%;
+  }
+  .btn-add{
+    width: 100%;
+  }
+  form.form .form-input{
+    width: 100%;
   }
 }

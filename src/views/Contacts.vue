@@ -1,7 +1,8 @@
 <template>
   <div>
+    
     <form class="form" @submit.prevent="addContact">
-      <h2>Добавить контакт</h2>
+      <h2 class="form-title">Добавить контакт</h2>
       <div class="form-group">
         <label>Имя</label>
         <input v-model="name" type="text" name="name" class="form-input" />
@@ -34,20 +35,24 @@
         </th>
       </tr>
     </table>
-    <Modal :selectedItem="selectedContact" @close="closeModal" @remove="removeContact" />
+    <Modal
+      :selectedItem="selectedContact"
+      @close="closeModal"
+      @remove="removeContact"
+    />
   </div>
 </template>
 
 <script>
-import Modal from '@/components/ModalRemove'
+import Modal from "@/components/ModalRemove";
 export default {
   name: "Contacts",
-  components:{ Modal},
+  components: { Modal },
   data: () => ({
     name: null,
     phone: null,
     selectedContact: null,
-    contacts: JSON.parse(localStorage.getItem('contacts')) || []
+    contacts: JSON.parse(localStorage.getItem("contacts")) || [],
   }),
   methods: {
     addContact() {
@@ -59,18 +64,20 @@ export default {
         });
         this.name = "";
         this.phone = "";
-        localStorage.setItem('contacts', JSON.stringify(this.contacts))
+        localStorage.setItem("contacts", JSON.stringify(this.contacts));
       }
     },
     showAlert(id) {
       this.selectedContact = id;
     },
-    closeModal(e){
-      if(e.target.className === 'modal' ) this.selectedContact = null
+    closeModal(e) {
+      if (e.target.className === "modal") this.selectedContact = null;
     },
     removeContact() {
-      this.contacts = this.contacts.filter((contact) => contact.id !== this.selectedContact);
-      localStorage.setItem('contacts', JSON.stringify(this.contacts))
+      this.contacts = this.contacts.filter(
+        (contact) => contact.id !== this.selectedContact
+      );
+      localStorage.setItem("contacts", JSON.stringify(this.contacts));
       this.selectedContact = null;
     },
   },

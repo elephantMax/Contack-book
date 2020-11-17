@@ -3,71 +3,61 @@
     <h1 v-if="!contact">Контакт не был найден</h1>
     <div v-else>
       <h1>Контакт #{{ contact.id }}</h1>
-      <div class="fields" :key="mainKey">
-        <div v-for="field in fields" :key="field.key" class="form-group">
+      <div class="fields">
+        <div class="field" v-for="field in fields" :key="field.key">
           <label v-if="!field.selected">{{ field.key }}</label>
           <input
             v-else
             type="text"
+            :disabled="{ true: field.key === 'name' || field.key === 'phone' }"
             :value="field.key"
-            class="field-input field-input-name"
-          />
-          <input
-            type="text"
-            :disabled="field.key === 'id' ? true : false"
-            :name="field.key"
-            :value="field.value"
             class="field-input"
           />
-          <div>
+          <input type="text" :disabled="!field.selected ? true: false " v-model="field.value" class="field-input" />
+          <div class="field-panel">
             <template v-if="field.selected">
-              <button class="btn btn-green">Сохранить</button>
-              <button class="btn btn-red">Удалить</button>
+              <button class="btn btn-blue" @click="saveField(field)">
+                Сохранить
+              </button>
+              <button class="btn btn-red">Отмена</button>
             </template>
-
-            <button
-              class="btn btn-blue"
-              :disabled="field.key === 'id' ? true : false"
-              @click="field.selected = !field.selected"
-            >
-              {{ field.selected ? "Отменить" : "Редактировать" }}
-            </button>
+            <template v-else>
+              <button
+                class="btn btn-blue"
+                :disabled="field.key === 'id' ? true : false"
+                @click="field.selected = true"
+              >
+                Редактировать
+              </button>
+              <button class="btn btn-red" @click="showModal(field.key)">
+                Удалить
+              </button>
+            </template>
           </div>
         </div>
-        <form
-          @submit.prevent="addField"
-          class="form-group field-form"
-          v-if="showForm"
-        >
+        <form @submit.prevent="addField" class="field" v-if="showForm">
           <input
             type="text"
-            name="fieldName"
-            placeholder="Название поля"
+            name="key"
             v-model="fieldName"
             class="field-input"
           />
           <input
             type="text"
-            name="fieldValue"
-            placeholder="Значение"
+            name="value"
             v-model="fieldValue"
             class="field-input"
           />
-          <button class="btn btn-green">Добавить</button>
-          <button class="btn btn-red" @click="resetFieldForm">Отмена</button>
+          <button class="btn btn-green" type="submit">Доабвить</button>
+          <button class="btn btn-red" @click.prevent="resetFieldForm">Отмена</button>
         </form>
-        <div class="form-group">
-          <button
-            class="btn btn-field"
-            v-if="!showForm"
-            @click="showForm = true"
-          >
+        <div class="field" v-if="!showForm">
+          <button class="btn btn-green btn-addField" @click="showForm = true">
             Добавить поле
           </button>
         </div>
         <div class="panel">
-          <button class="btn btn-red">Отменить измененеие</button>
-          <button class="btn btn-blue">Сохранить изменения</button>
+          <button class="btn btn-red" @click="showBackups">Отменить измененеие</button>
         </div>
       </div>
     </div>
@@ -98,6 +88,7 @@ export default {
   methods: {
     addField() {
       if (this.fieldName && this.fieldValue) {
+        this.fields.push({ key: this.fieldName, value: this.fieldValue, selected: false });
         this.contact[this.fieldName] = this.fieldValue;
         this.fieldName = this.fieldValue = null;
         let contacts = JSON.parse(localStorage.getItem("contacts"));
@@ -107,10 +98,10 @@ export default {
         });
         localStorage.setItem("contacts", JSON.stringify(contacts));
         this.showForm = false;
-        this.mainKey++;
       }
     },
-    removeField(key) {
+    removeField() {
+      this.fields = this.fields.filter((f) => f.key !== this.selectedField);
       delete this.contact[this.selectedField];
       this.selectedField = null;
       let contacts = JSON.parse(localStorage.getItem("contacts"));
@@ -119,7 +110,6 @@ export default {
         return c;
       });
       localStorage.setItem("contacts", JSON.stringify(contacts));
-      this.mainKey++;
     },
     closeModal(e) {
       if (e.target.className === "modal") this.selectedField = null;
@@ -127,20 +117,32 @@ export default {
     showModal(key) {
       this.selectedField = key;
     },
+    saveField(field) {
+      let contacts = JSON.parse(localStorage.getItem("contacts"));
+      field.selected = false
+      this.contact[field['key']] = field['value']
+      contacts = contacts.map((c) => {
+        if (c.id === this.contact.id) return this.contact
+        return c
+      });
+      localStorage.setItem("contacts", JSON.stringify(contacts))
+    },
     resetFieldForm() {
       this.showForm = false;
       this.fieldName = null;
       this.fieldValue = null;
     },
+    showBackups(){
+      console.log(this.backups)
+    }
   },
   mounted() {
     const contacts = JSON.parse(localStorage.getItem("contacts"));
-    this.contact = contacts.find((c) => c.id === +this.$route.params.id);
-    this.backups.push(this.contact);
+    this.contact = contacts.find((c) => c.id === +this.$route.params.id)
     this.fields = Object.keys(this.contact);
-    this.fields = this.fields.map((f) => ({
-      key: f,
-      value: this.contact[f],
+    this.fields = this.fields.map((k) => ({
+      key: k,
+      value: this.contact[k],
       selected: false,
     }));
   },

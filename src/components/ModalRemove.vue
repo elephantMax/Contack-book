@@ -16,18 +16,17 @@ export default {
 
 <style scoped>
 .modal {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  
   background-color: rgba(250, 245, 245, 0.589);
 }
 .modal-content{
   padding: 10px 30px;
   z-index: 9999;
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

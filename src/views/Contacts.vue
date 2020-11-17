@@ -13,8 +13,8 @@
       </div>
       <button class="btn btn-green">Добавить</button>
     </form>
-    <table class="contacts">
-      <tr class="contacts-first-row">
+    <table class="table">
+      <tr class="table-first-row">
         <th>#</th>
         <th>Name</th>
         <th>Phone</th>
@@ -22,7 +22,7 @@
       </tr>
       <tr v-for="(contact, index) in contacts" :key="index">
         <th>{{ (index += 1) }}</th>
-        <th class="contacts-phoneCell">
+        <th class="table-phoneCell">
           <router-link class="contact-link" :to="`/contact/${contact.id}`">{{
             contact.name
           }}</router-link>

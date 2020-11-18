@@ -24,7 +24,7 @@
               <button class="btn btn-blue" @click="saveField(field)">
                 Сохранить
               </button>
-              <button class="btn btn-red">Отмена</button>
+              <button class="btn btn-red" @click="field.selected = false">Отмена</button>
             </template>
             <template v-else>
               <button
@@ -66,7 +66,7 @@
         <div class="panel">
           <button
             class="btn btn-red"
-            @click="showBackups"
+            @click="rollBack"
             :disabled="currentVerison < 1 ? true : false"
           >
             Отменить последнее измененеие ({{currentVerison }})
@@ -157,15 +157,15 @@ export default {
       this.fieldName = null;
       this.fieldValue = null;
     },
-    showBackups() {
+    rollBack() {
       if (this.currentVerison > 0) {
         this.backups.splice(this.currentVerison)
         this.fields = this.backups[this.currentVerison - 1];
         this.currentVerison--;
-        this.fields.forEach((f) => {
-          this.contact[f.key] = f.value;
-        });
-        console.log(this.contact);
+        this.contact = {}
+        this.fields.forEach(f=>{
+          this.contact[f.key] = f.value
+        })
         let contacts = JSON.parse(localStorage.getItem("contacts"));
         contacts = contacts.map((c) => {
           if (c.id === this.contact.id) return this.contact;

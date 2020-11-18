@@ -5,8 +5,5 @@ export default {
       sessionStorage.setItem('fields', JSON.stringify(backups))
       return JSON.parse(sessionStorage.getItem('fields'))
     }
-    // Vue.prototype.$getBackups = function(){
-    //   return 
-    // }
   }
 }

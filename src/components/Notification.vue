@@ -1,15 +1,15 @@
 <template>
   <div v-if="messages.length" class="notification error">
     <h3>Возникли ошибки</h3>
-    <ul >
-      <li  v-for="message in messages" :key="message">{{ message }}</li>
+    <ul>
+      <li v-for="message in messages" :key="message">{{ message }}</li>
     </ul>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["messages", 'type'],
+  props: ["messages", "type"],
   watch: {
     messages() {
       if (this.messages.length) {
@@ -27,10 +27,9 @@ export default {
   position: fixed;
   right: 1%;
   bottom: 1%;
- 
   padding: 20px;
 }
-.error{
+.error {
   background: rgba(231, 11, 11, 0.835);
   color: white;
 }

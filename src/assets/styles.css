@@ -85,7 +85,6 @@ body {
 }
 
 .field-input{
-  /* flex-basis: 30%; */
   padding: 10px;
   margin-bottom: 10px;
   font-size: 18px;
@@ -134,10 +133,6 @@ input:disabled{
 .btn-blue{
   color: white;
   background-color: rgb(0, 174, 255);
-}
-.btn-field{
-  background-color: #fff;
-  flex-basis: 100%;
 }
 
 .table {
@@ -196,48 +191,6 @@ input:disabled{
   justify-content: space-between;
   flex-basis: 100%;
 }
-/* .btn-addField{
-  margin-top: 20px;
-} */
-/* .fields{
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-} */
-/* .field{
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-} */
-
-/* .fields{
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  padding: 10px;
-} */
-/* .fields .form-group{
-  flex-basis: 100%;
-  margin-bottom: 10px;
-}
-.fields .form-group label{
-   flex-basis: 50%; 
-}
-.field-form{
-  flex-wrap: wrap;
-}
-.field-form .field-input{
-  margin-bottom: 10px;
-  flex-basis: 30%;
-}
-
-.field-input-name{
-  width: 100%;
-  margin-right: 10px;
-}   */
 
 
 @media screen and (max-width: 600px) {
@@ -256,32 +209,17 @@ input:disabled{
   }
   .form-group label {
     text-align: left;
-    /* flex-basis: 90%; */
   }
   .container {
     width: 100%;
   }
-  
   .panel .btn{
     flex-basis: 30%;
-  }
-  .btn-field{
-    width: 100%;
   }
   .btn{
     width: 100%;
     margin-bottom: 10px;
   }
-  form.form .form-input{
-    width: 100%;
-  }
-  /* .fields .form-group{
-    flex-basis: 100%;
-  }
-  .fields .form-group > *{
-    flex-basis: 100%;
-    margin: 0;
-  } */
   .fields{
     flex-direction: column;
     align-items: center;
@@ -306,7 +244,6 @@ input:disabled{
     flex-direction: column;
   }
 }
-
 @media screen and (max-width: 1100px){
   .field{
     width: 90%;

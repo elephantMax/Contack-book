@@ -14,6 +14,7 @@
             "
             :value="field.key"
             ref="fieldKey"
+            @keyup.enter="saveField(field)"
             class="field-input"
           />
           <input
@@ -65,12 +66,14 @@
             type="text"
             name="key"
             v-model="fieldName"
+            placeholder="Поле"
             class="field-input"
           />
           <input
             type="text"
             name="value"
             v-model="fieldValue"
+            placeholder="Значение"
             class="field-input"
           />
           <button class="btn btn-green" type="submit">Доабвить</button>
@@ -184,9 +187,9 @@ export default {
       this.selectedField = key;
     },
     saveField(field) {
-      if (!field.key || !field.value) return;
-
       const fieldKey = this.$refs.fieldKey[0].value;
+      if (!fieldKey || !field.value) return
+     
       let sameField;
       this.backups[this.backups.length - 1].forEach((b) => {
         if (b.key === fieldKey && b.value === field.value) {
@@ -197,15 +200,15 @@ export default {
         let contacts = JSON.parse(localStorage.getItem("contacts"));
         delete this.contact[field["key"]];
         field.key = fieldKey;
-        
+
         this.contact[fieldKey] = field["value"];
         contacts = contacts.map((c) => {
           if (c.id === this.contact.id) return this.contact;
           return c;
         });
-        this.backups = this.$addBackup(this.backups, this.fields)
-        this.currentVerison++
-        localStorage.setItem("contacts", JSON.stringify(contacts))
+        this.backups = this.$addBackup(this.backups, this.fields);
+        this.currentVerison++;
+        localStorage.setItem("contacts", JSON.stringify(contacts));
       }
       field.selected = false;
     },
@@ -247,8 +250,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.form-group {
-  align-items: baseline;
-}
-</style>

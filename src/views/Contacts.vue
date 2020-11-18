@@ -1,6 +1,5 @@
 <template>
   <div>
-    
     <form class="form" @submit.prevent="addContact">
       <h2 class="form-title">Добавить контакт</h2>
       <div class="form-group">
@@ -9,7 +8,12 @@
       </div>
       <div class="form-group">
         <label>Телефон</label>
-        <input v-model="number" type="number" name="number" class="form-input" />
+        <input
+          v-model="number"
+          type="number"
+          name="number"
+          class="form-input"
+        />
       </div>
       <button class="btn btn-green">Добавить</button>
     </form>
@@ -37,15 +41,17 @@
     </table>
     <Modal
       :show="selectedContact"
-      content="Удалить контакт?" btnContent="Удалить"
+      content="Удалить контакт?"
+      btnContent="Удалить"
       @close="closeModal"
       @confirmed="removeContact"
     />
+
+    <Notification :messages="messages" />
   </div>
 </template>
 
 <script>
-
 export default {
   name: "Contacts",
   data: () => ({
@@ -53,18 +59,22 @@ export default {
     number: null,
     selectedContact: null,
     contacts: JSON.parse(localStorage.getItem("contacts")) || [],
+    messages: []
   }),
   methods: {
     addContact() {
+      this.messages.length = 0
       if (this.name && this.number) {
         this.contacts.push({
           id: Date.now(),
           name: this.name,
           number: this.number,
         });
-        this.name = "";
-        this.number = "";
+        this.name = this.number = ''
         localStorage.setItem("contacts", JSON.stringify(this.contacts));
+      }
+      else{
+        this.messages.push('Fields required')
       }
     },
     showAlert(id) {

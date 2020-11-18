@@ -52,13 +52,16 @@ export default {
   justify-content: space-between;
   align-items: center;
 }
+.modal-btns .btn{
+  flex-basis: 25%;
+}
 
 @media screen and (max-width: 400px) {
   .modal-content {
     width: 90%;
   }
   .modal-content .btn {
-    width: 100%;
+    flex-basis: 100%;
   }
 }
 </style>

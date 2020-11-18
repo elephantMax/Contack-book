@@ -9,15 +9,15 @@
       </div>
       <div class="form-group">
         <label>Телефон</label>
-        <input v-model="phone" type="number" name="phone" class="form-input" />
+        <input v-model="number" type="number" name="number" class="form-input" />
       </div>
       <button class="btn btn-green">Добавить</button>
     </form>
     <table class="table">
       <tr class="table-first-row">
         <th>#</th>
-        <th>Name</th>
-        <th>Phone</th>
+        <th>Имя</th>
+        <th>Телефон</th>
         <th>Действия</th>
       </tr>
       <tr v-for="(contact, index) in contacts" :key="index">
@@ -27,7 +27,7 @@
             contact.name
           }}</router-link>
         </th>
-        <th class="table-txt-overflow">{{ contact.phone }}</th>
+        <th class="table-txt-overflow">{{ contact.number }}</th>
         <th>
           <button class="btn btn-red" @click="showAlert(contact.id)">
             Удалить
@@ -36,34 +36,34 @@
       </tr>
     </table>
     <Modal
-      :selectedItem="selectedContact"
+      :show="selectedContact"
+      content="Удалить контакт?" btnContent="Удалить"
       @close="closeModal"
-      @remove="removeContact"
+      @confirmed="removeContact"
     />
   </div>
 </template>
 
 <script>
-import Modal from "@/components/ModalRemove";
+
 export default {
   name: "Contacts",
-  components: { Modal },
   data: () => ({
     name: null,
-    phone: null,
+    number: null,
     selectedContact: null,
     contacts: JSON.parse(localStorage.getItem("contacts")) || [],
   }),
   methods: {
     addContact() {
-      if (this.name && this.phone) {
+      if (this.name && this.number) {
         this.contacts.push({
           id: Date.now(),
           name: this.name,
-          phone: this.phone,
+          number: this.number,
         });
         this.name = "";
-        this.phone = "";
+        this.number = "";
         localStorage.setItem("contacts", JSON.stringify(this.contacts));
       }
     },

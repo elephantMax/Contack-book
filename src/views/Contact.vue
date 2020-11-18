@@ -3,13 +3,15 @@
     <h1 v-if="!contact">Контакт не был найден</h1>
     <div v-else>
       <h1>Контакт #{{ contact.id }}</h1>
-      <div class="fields" >
+      <div class="fields">
         <div class="field" v-for="field in fields" :key="field.key">
           <label v-if="!field.selected">{{ field.key }}</label>
           <input
             v-else
             type="text"
-            :disabled="field.key === 'name' || field.key === 'phone' ? true: false"
+            :disabled="
+              field.key === 'name' || field.key === 'number' ? true : false
+            "
             :value="field.key"
             ref="fieldKey"
             class="field-input"
@@ -17,26 +19,42 @@
           <input
             :disabled="!field.selected ? true : false"
             v-model="field.value"
-            :type="field.key === 'phone' ? 'number' : 'text'"
+            :type="field.key === 'number' ? 'number' : 'text'"
             @keyup.enter="saveField(field)"
             class="field-input"
           />
           <div class="field-panel">
             <template v-if="field.selected">
-              <button class="btn btn-blue" type="submit" @click="saveField(field)">
+              <button
+                class="btn btn-blue"
+                type="submit"
+                @click="saveField(field)"
+              >
                 Сохранить
               </button>
-              <button class="btn btn-red" @click="field.selected = false">Отмена</button>
+              <button class="btn btn-red" @click="field.selected = false">
+                Отмена
+              </button>
             </template>
             <template v-else>
               <button
                 class="btn btn-blue"
                 :disabled="field.key === 'id' ? true : false"
-                @click="field.selected = true"
+                @click="selectField(field)"
               >
                 Редактировать
               </button>
-              <button class="btn btn-red" @click="showModal(field.key)">
+              <button
+                class="btn btn-red"
+                :disabled="
+                  field.key === 'id' ||
+                  field.key === 'name' ||
+                  field.key === 'number'
+                    ? true
+                    : false
+                "
+                @click="showModal(field.key)"
+              >
                 Удалить
               </button>
             </template>
@@ -71,7 +89,7 @@
             @click="showConfirmModal = true"
             :disabled="currentVerison < 1 ? true : false"
           >
-            Отменить последнее измененеие 
+            Отменить последнее измененеие
           </button>
         </div>
       </div>
@@ -80,19 +98,23 @@
       :show="selectedField"
       @close="closeModal"
       @confirmed="removeField"
-      content="Удалить контакт?" btnContent="Удалить"
+      content="Удалить поле?"
+      btnContent="Удалить"
     />
-    <Modal :show="showConfirmModal" @close="closeModal" @confirmed="rollBack" content="Отменить последнее изменение?" btnContent="Отменить" />
+    <Modal
+      :show="showConfirmModal"
+      @close="closeModal"
+      @confirmed="rollBack"
+      content="Отменить последнее изменение?"
+      btnContent="Отменить"
+    />
+    <Notification :messages="messages" />
   </div>
 </template>
 
 <script>
-
-import Modal from '@/components/Modal'
-
 export default {
   name: "Contact",
-  components: { Modal },
   data: () => ({
     contact: null,
     showConfirmModal: false,
@@ -104,10 +126,26 @@ export default {
     currentVerison: 0,
     showEdit: false,
     selectedField: null,
+    messages: [],
   }),
   methods: {
+    selectField(field) {
+      this.fields.forEach((f) => {
+        f.selected = false;
+      });
+      field.selected = true;
+    },
     addField() {
-      if (this.fieldName && this.fieldValue) {
+      this.messages = [];
+      this.fields.forEach((f) => {
+        if (f.key === this.fieldName) {
+          this.messages.push("duplicate keys");
+        }
+      });
+      if (!this.fieldName && !this.fieldValue) {
+        this.messages.push("fields is required");
+      }
+      if (!this.messages.length) {
         this.fields.push({
           key: this.fieldName,
           value: this.fieldValue,
@@ -119,16 +157,16 @@ export default {
         contacts = contacts.map((c) => {
           if (c.id === this.contact.id) return this.contact;
           return c;
-        })
+        });
         localStorage.setItem("contacts", JSON.stringify(contacts));
         this.showForm = false;
         this.backups = this.$addBackup(this.backups, this.fields);
-        this.currentVerison++
+        this.currentVerison++;
       }
     },
     removeField() {
       this.backups = this.$addBackup(this.backups, this.fields);
-      this.currentVerison++
+      this.currentVerison++;
       this.fields = this.fields.filter((f) => f.key !== this.selectedField);
       delete this.contact[this.selectedField];
       this.selectedField = null;
@@ -146,23 +184,30 @@ export default {
       this.selectedField = key;
     },
     saveField(field) {
-      if(!field.key || !field.value ) return
+      if (!field.key || !field.value) return;
 
-
-      const fieldKey = this.$refs.fieldKey[0].value
-      let contacts = JSON.parse(localStorage.getItem("contacts"))
-      delete this.contact[field['key']]
-      field.key = fieldKey
-      field.selected = false
-      this.contact[fieldKey] = field["value"]
-      contacts = contacts.map((c) => {
-        if (c.id === this.contact.id) return this.contact;
-        return c;
-      })
-      
-      this.backups = this.$addBackup(this.backups, this.fields)
-      this.currentVerison++
-      localStorage.setItem("contacts", JSON.stringify(contacts))
+      const fieldKey = this.$refs.fieldKey[0].value;
+      let sameField;
+      this.backups[this.backups.length - 1].forEach((b) => {
+        if (b.key === fieldKey && b.value === field.value) {
+          sameField = true;
+        }
+      });
+      if (!sameField) {
+        let contacts = JSON.parse(localStorage.getItem("contacts"));
+        delete this.contact[field["key"]];
+        field.key = fieldKey;
+        
+        this.contact[fieldKey] = field["value"];
+        contacts = contacts.map((c) => {
+          if (c.id === this.contact.id) return this.contact;
+          return c;
+        });
+        this.backups = this.$addBackup(this.backups, this.fields)
+        this.currentVerison++
+        localStorage.setItem("contacts", JSON.stringify(contacts))
+      }
+      field.selected = false;
     },
     resetFieldForm() {
       this.showForm = false;
@@ -171,20 +216,20 @@ export default {
     },
     rollBack() {
       if (this.currentVerison > 0) {
-        this.backups.splice(this.currentVerison)
+        this.backups.splice(this.currentVerison);
         this.fields = this.backups[this.currentVerison - 1];
         this.currentVerison--;
-        this.contact = {}
-        this.fields.forEach(f=>{
-          this.contact[f.key] = f.value
-        })
+        this.contact = {};
+        this.fields.forEach((f) => {
+          this.contact[f.key] = f.value;
+        });
         let contacts = JSON.parse(localStorage.getItem("contacts"));
         contacts = contacts.map((c) => {
           if (c.id === this.contact.id) return this.contact;
           return c;
         });
         localStorage.setItem("contacts", JSON.stringify(contacts));
-        this.showConfirmModal = false
+        this.showConfirmModal = false;
       }
     },
   },

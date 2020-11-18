@@ -125,7 +125,10 @@ export default {
         if (c.id === this.contact.id) return this.contact
         return c
       });
+      this.backups.push(this.fields)
+      sessionStorage.setItem('fields', JSON.stringify(this.backups))
       localStorage.setItem("contacts", JSON.stringify(contacts))
+      this.backups = JSON.parse(sessionStorage.getItem('fields'))
     },
     resetFieldForm() {
       this.showForm = false;
@@ -133,6 +136,7 @@ export default {
       this.fieldValue = null;
     },
     showBackups(){
+      this.backups = JSON.parse(sessionStorage.getItem('fields'))
       console.log(this.backups)
     }
   },
@@ -145,6 +149,10 @@ export default {
       value: this.contact[k],
       selected: false,
     }));
+    sessionStorage.clear()
+    this.backups.push(this.fields)
+    sessionStorage.setItem('fields', JSON.stringify(this.backups))
+    this.backups = JSON.parse(sessionStorage.getItem('fields'))
   },
 };
 </script>

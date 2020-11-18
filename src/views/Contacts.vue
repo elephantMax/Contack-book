@@ -22,12 +22,12 @@
       </tr>
       <tr v-for="(contact, index) in contacts" :key="index">
         <th>{{ (index += 1) }}</th>
-        <th class="table-phoneCell">
+        <th class="table-txt-overflow">
           <router-link class="contact-link" :to="`/contact/${contact.id}`">{{
             contact.name
           }}</router-link>
         </th>
-        <th>{{ contact.phone }}</th>
+        <th class="table-txt-overflow">{{ contact.phone }}</th>
         <th>
           <button class="btn btn-red" @click="showAlert(contact.id)">
             Удалить

@@ -3,25 +3,27 @@
     <h1 v-if="!contact">Контакт не был найден</h1>
     <div v-else>
       <h1>Контакт #{{ contact.id }}</h1>
-      <div class="fields">
+      <div class="fields" >
         <div class="field" v-for="field in fields" :key="field.key">
           <label v-if="!field.selected">{{ field.key }}</label>
           <input
             v-else
             type="text"
-            :disabled="{ true: field.key === 'name' || field.key === 'phone' }"
+            :disabled="field.key === 'name' || field.key === 'phone' ? true: false"
             :value="field.key"
+            ref="fieldKey"
             class="field-input"
           />
           <input
-            type="text"
             :disabled="!field.selected ? true : false"
             v-model="field.value"
+            :type="field.key === 'phone' ? 'number' : 'text'"
+            @keyup.enter="saveField(field)"
             class="field-input"
           />
           <div class="field-panel">
             <template v-if="field.selected">
-              <button class="btn btn-blue" @click="saveField(field)">
+              <button class="btn btn-blue" type="submit" @click="saveField(field)">
                 Сохранить
               </button>
               <button class="btn btn-red" @click="field.selected = false">Отмена</button>
@@ -66,33 +68,37 @@
         <div class="panel">
           <button
             class="btn btn-red"
-            @click="rollBack"
+            @click="showConfirmModal = true"
             :disabled="currentVerison < 1 ? true : false"
           >
-            Отменить последнее измененеие ({{currentVerison }})
+            Отменить последнее измененеие 
           </button>
         </div>
       </div>
     </div>
     <Modal
-      :selectedItem="selectedField"
+      :show="selectedField"
       @close="closeModal"
-      @remove="removeField"
+      @confirmed="removeField"
+      content="Удалить контакт?" btnContent="Удалить"
     />
+    <Modal :show="showConfirmModal" @close="closeModal" @confirmed="rollBack" content="Отменить последнее изменение?" btnContent="Отменить" />
   </div>
 </template>
 
 <script>
-import Modal from "@/components/ModalRemove";
+
+import Modal from '@/components/Modal'
+
 export default {
   name: "Contact",
   components: { Modal },
   data: () => ({
     contact: null,
+    showConfirmModal: false,
     showForm: false,
     fieldName: null,
     fieldValue: null,
-    mainKey: 0,
     backups: [],
     fields: [],
     currentVerison: 0,
@@ -140,17 +146,23 @@ export default {
       this.selectedField = key;
     },
     saveField(field) {
-      let contacts = JSON.parse(localStorage.getItem("contacts"));
-      field.selected = false;
-      this.contact[field["key"]] = field["value"];
+      if(!field.key || !field.value ) return
+
+
+      const fieldKey = this.$refs.fieldKey[0].value
+      let contacts = JSON.parse(localStorage.getItem("contacts"))
+      delete this.contact[field['key']]
+      field.key = fieldKey
+      field.selected = false
+      this.contact[fieldKey] = field["value"]
       contacts = contacts.map((c) => {
         if (c.id === this.contact.id) return this.contact;
         return c;
-      });
-      // this.backups = this.$getBackups();
-      this.backups = this.$addBackup(this.backups, this.fields);
+      })
+      
+      this.backups = this.$addBackup(this.backups, this.fields)
       this.currentVerison++
-      localStorage.setItem("contacts", JSON.stringify(contacts));
+      localStorage.setItem("contacts", JSON.stringify(contacts))
     },
     resetFieldForm() {
       this.showForm = false;
@@ -172,6 +184,7 @@ export default {
           return c;
         });
         localStorage.setItem("contacts", JSON.stringify(contacts));
+        this.showConfirmModal = false
       }
     },
   },

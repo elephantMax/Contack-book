@@ -1,17 +1,22 @@
 <template>
-   <div class="modal" v-if="show" @click="$emit('close', $event)">
-      <div class="modal-content">
-        <h2>{{content}}</h2>
-        <button class="btn btn-red" @click="$emit('confirmed')">{{btnContent}}</button>
+  <div class="modal" v-if="show" @click="$emit('close', $event)">
+    <div class="modal-content">
+      <h2>{{ content }}</h2>
+      <div class="modal-btns">
+        <button @click="$emit('close', $event)" class="btn btn-dark">{{btnCancelContent}}</button>
+        <button class="btn btn-red" @click="$emit('confirmed')">
+          {{ btnConfirmContent }}
+        </button>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
 export default {
-  name: 'Modal1',
-  props: ['show', 'content', 'btnContent'],
-}
+  name: "Modal1",
+  props: ["show", "content", "btnConfirmContent", "btnCancelContent"],
+};
 </script>
 
 <style scoped>
@@ -23,7 +28,7 @@ export default {
   bottom: 0;
   background-color: rgba(250, 245, 245, 0.589);
 }
-.modal-content{
+.modal-content {
   padding: 10px 30px;
   z-index: 9999;
   position: fixed;
@@ -37,14 +42,22 @@ export default {
   flex-direction: column;
   align-items: flex-end;
 }
-.modal-content > *{
+.modal-content > * {
   margin-bottom: 10px;
 }
+.modal-btns{
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
 @media screen and (max-width: 400px) {
-  .modal-content{
+  .modal-content {
     width: 90%;
   }
-  .modal-content .btn{
+  .modal-content .btn {
     width: 100%;
   }
 }

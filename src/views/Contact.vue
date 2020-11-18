@@ -2,7 +2,7 @@
   <div>
     <h1 v-if="!contact">Контакт не был найден</h1>
     <div v-else>
-      <h1>Контакт #{{ contact.id }}</h1>
+      <h1>Редактировать контакт</h1>
       <div class="fields">
         <div class="field" v-for="field in fields" :key="field.key">
           <label v-if="!field.selected">{{ field.key }}</label>
@@ -102,14 +102,16 @@
       @close="closeModal"
       @confirmed="removeField"
       content="Удалить поле?"
-      btnContent="Удалить"
+      btnConfirmContent="Удалить"
+      btnCancelContent="Отмена"
     />
     <Modal
       :show="showConfirmModal"
       @close="closeModal"
       @confirmed="rollBack"
       content="Отменить последнее изменение?"
-      btnContent="Отменить"
+      btnConfirmContent="Да"
+      btnCancelContent="Нет"
     />
     <Notification :messages="messages" />
   </div>
@@ -181,7 +183,7 @@ export default {
       localStorage.setItem("contacts", JSON.stringify(contacts));
     },
     closeModal(e) {
-      if (e.target.className === "modal") this.selectedField = null;
+      if (e.target.className === "modal" || e.target.className.includes('btn-dark')) this.showConfirmModal = false;
     },
     showModal(key) {
       this.selectedField = key;

@@ -134,7 +134,10 @@ input:disabled{
   color: white;
   background-color: rgb(0, 174, 255);
 }
-
+.btn-dark{
+  color: white;
+  background-color: rgb(44, 42, 42);
+}
 .table {
   border-collapse: separate;
   width: 100%;

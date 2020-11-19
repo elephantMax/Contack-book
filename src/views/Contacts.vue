@@ -17,7 +17,8 @@
       </div>
       <button class="btn btn-green">Добавить</button>
     </form>
-    <table class="table">
+    <h2 v-if="!contacts.length">Здесь пока пусто</h2>
+    <table v-else class="table">
       <tr class="table-first-row">
         <th>#</th>
         <th>Имя</th>
@@ -56,43 +57,43 @@
 export default {
   name: "Contacts",
   data: () => ({
-    name: null,
-    number: null,
-    selectedContact: null,
-    contacts: JSON.parse(localStorage.getItem("contacts")) || [],
-    messages: [],
+    name: null,//value of input for name
+    number: null,//value of input for number
+    selectedContact: null,//modal toggler
+    contacts: JSON.parse(localStorage.getItem("contacts")) || [],//array with contacts
+    messages: [],//messages with erorrs
   }),
   methods: {
-    addContact() {
-      this.messages.length = 0;
-      if (this.name && this.number) {
-        this.contacts.push({
+    addContact() {//add contact
+      this.messages.length = 0; //to avoid error message in console
+      if (this.name && this.number) { //check inputs
+        this.contacts.push({//adds new contact
           id: Date.now(),
           name: this.name,
           number: this.number,
         });
-        this.name = this.number = "";
-        localStorage.setItem("contacts", JSON.stringify(this.contacts));
+        this.name = this.number = "" //clear inputs
+        localStorage.setItem("contacts", JSON.stringify(this.contacts)) //save contact to storage
       } else {
-        this.messages.push("Fields required");
+        this.messages.push("Fields required");//toggle modal with errors
       }
     },
     showAlert(id) {
-      this.selectedContact = id;
+      this.selectedContact = id;//shows modal to remove contact
     },
-    closeModal(e) {
+    closeModal(e) { //close modal if click to modal's wrapper or button to cencel
       if (
         e.target.className === "modal" ||
         e.target.className.includes("btn-dark")
       )
-        this.selectedContact = null;
+      this.selectedContact = null; //close modal
     },
     removeContact() {
-      this.contacts = this.contacts.filter(
+      this.contacts = this.contacts.filter(//remove contact from arr
         (contact) => contact.id !== this.selectedContact
       );
-      localStorage.setItem("contacts", JSON.stringify(this.contacts));
-      this.selectedContact = null;
+      localStorage.setItem("contacts", JSON.stringify(this.contacts)); //save contact
+      this.selectedContact = null; //close modal
     },
   },
 };

@@ -1,5 +1,5 @@
 export default {
-  install(Vue, options){
+  install(Vue){
     Vue.prototype.$addBackup = function(backups, backup){
       backups.push(backup)
       sessionStorage.setItem('fields', JSON.stringify(backups))

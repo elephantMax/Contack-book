@@ -113,20 +113,20 @@
 export default {
   name: "Contact",
   data: () => ({
-    contact: null,
-    showConfirmModal: false,
-    showForm: false,
+    contact: null, //current contact
+    showConfirmModal: false, //confirm modal toggler
+    showForm: false, //show form toggler
     fieldName: null,
     fieldValue: null,
-    backups: [],
-    fields: [],
-    currentVersion: 0,
-    showEdit: false,
-    selectedField: null,
-    messages: [],
+    backups: [], // array with backups
+    fields: [], //fields data
+    currentVersion: 0, //version for backup
+    selectedField: null, //editor's toggler
+    messages: [], // messages with validation info
   }),
   methods: {
-    selectField(field = null) {
+    selectField(field) {
+      //sets to field prop selected and disabled for others fields
       this.fields.forEach((f) => {
         f.selected = false;
       });
@@ -134,6 +134,7 @@ export default {
     },
     addField() {
       this.messages = [];
+      //pushing messages with errors
       this.fields.forEach((f) => {
         if (f.key === this.fieldName) {
           this.messages.push("duplicate keys");
@@ -142,39 +143,44 @@ export default {
       if (!this.fieldName && !this.fieldValue) {
         this.messages.push("fields is required");
       }
+
       if (!this.messages.length) {
         this.fields.push({
+          //add new field to fields arr
           key: this.fieldName,
           value: this.fieldValue,
           selected: false,
         });
-        this.contact[this.fieldName] = this.fieldValue;
-        this.fieldName = this.fieldValue = null;
-        let contacts = JSON.parse(localStorage.getItem("contacts"));
+        this.contact[this.fieldName] = this.fieldValue; //adds new prop (field) to current contact
+        this.fieldName = this.fieldValue = null; //clear inputs
+        let contacts = JSON.parse(localStorage.getItem("contacts")); //getting contacts from storage
         contacts = contacts.map((c) => {
-          if (c.id === this.contact.id) return this.contact;
+          //updating them
+          if (c.id === this.contact.id) return this.contact; //change old contact to new
           return c;
         });
-        localStorage.setItem("contacts", JSON.stringify(contacts));
-        this.showForm = false;
-        this.backups = this.$addBackup(this.backups, this.fields);
-        this.currentVersion++;
+        localStorage.setItem("contacts", JSON.stringify(contacts)); //saving new contatcs arr to storage
+        this.showForm = false; //hiding form
+        this.backups = this.$addBackup(this.backups, this.fields); //add backup
+        this.currentVersion++; //set newest version for moving in backups
       }
     },
     removeField() {
-      this.backups = this.$addBackup(this.backups, this.fields);
-      this.currentVersion++;
-      this.fields = this.fields.filter((f) => f.key !== this.selectedField);
-      delete this.contact[this.selectedField];
-      this.selectedField = null;
-      let contacts = JSON.parse(localStorage.getItem("contacts"));
+      this.backups = this.$addBackup(this.backups, this.fields); //add backup and then removing selected field
+      this.currentVersion++; //set newest version
+      this.fields = this.fields.filter((f) => f.key !== this.selectedField); //updating fields (removing current field)
+      delete this.contact[this.selectedField]; //remove field from current contact
+      this.selectedField = null; //clear selected field
+      let contacts = JSON.parse(localStorage.getItem("contacts")); //getting contacts
       contacts = contacts.map((c) => {
-        if (c.id === this.contact.id) return this.contact;
+        //updating them
+        if (c.id === this.contact.id) return this.contact; //set new contact instead of old
         return c;
       });
-      localStorage.setItem("contacts", JSON.stringify(contacts));
+      localStorage.setItem("contacts", JSON.stringify(contacts)); //save contacts to stroage
     },
     closeModal(e) {
+      //close modal window
       if (
         e.target.className === "modal" ||
         e.target.className.includes("btn-dark")
@@ -184,73 +190,93 @@ export default {
       }
     },
     showModal(key) {
+      //showing modal for removes
       this.selectedField = key;
     },
-    confirmModal(){
+    confirmModal() {
+      //opens modal to confirm backup
       this.fields.forEach((f) => {
         f.selected = false;
       });
-      this.showConfirmModal = true
+      this.showConfirmModal = true;
     },
     saveField(field) {
-      const fieldKey = this.$refs.fieldKey[0].value;
-      if (!fieldKey || !field.value) return;
-      let contacts = JSON.parse(localStorage.getItem("contacts"));
-      delete this.contact[field["key"]];
-      field.key = fieldKey;
-      this.contact[fieldKey] = field["value"];
+      //field - old version of field (only field.key old) //for backup
+      const fieldKey = this.$refs.fieldKey[0].value; //getting newest value of selected field's key
+      if (!fieldKey || !field.value) return; //check values
+      delete this.contact[field["key"]]; //removes old field in current contact
+      this.contact[fieldKey] = field["value"]; //sets new (renamed) field with newest value to current contact
+      let contacts = JSON.parse(localStorage.getItem("contacts")); //getting contacts from storage
       contacts = contacts.map((c) => {
-        if (c.id === this.contact.id) return this.contact;
+        //update contacts
+        if (c.id === this.contact.id) return this.contact; //set new contact instead of old
         return c;
       });
-      this.backups = this.$addBackup(this.backups, this.fields);
-      this.currentVersion++;
-      localStorage.setItem("contacts", JSON.stringify(contacts));
-
+      this.fields = this.fields.map((f) => {
+        if (f.key === field.key) {
+          // changing (rename) current  field
+          delete f.key;
+          f.key = fieldKey;
+          f.selected = false;
+          return {
+            ...f,
+          };
+        }
+        return f;
+      });
+      this.backups = this.$addBackup(this.backups, this.fields); //add backup
+      this.currentVersion++; //set new version
+      localStorage.setItem("contacts", JSON.stringify(contacts)); //save contacts
       field.selected = false;
     },
     resetFieldForm() {
+      //reset form
       this.showForm = false;
       this.fieldName = null;
       this.fieldValue = null;
     },
     rollBack() {
       if (this.currentVersion > 0) {
-        this.backups = this.$removeLastBackup(this.backups);
-        this.currentVersion -= 1;
-        this.fields = this.backups[this.currentVersion];
-        this.contact = {};
+        this.backups = this.$removeLastBackup(this.backups); //remove last backup
+        this.backups = this.$addBackup(this.backups, this.fields); //wierd move... but i did that to avoid bug
+        this.currentVersion -= 1; // change version of backup
+        this.fields = this.backups[this.currentVersion]; //set latest version
+        this.contact = {}; //updating current contact
         this.fields.forEach((f) => {
-          this.contact[f.key] = f.value
-          f.selected = false
+          //set new fileds
+          this.contact[f.key] = f.value;
+          f.selected = false;
         });
-        let contacts = JSON.parse(localStorage.getItem("contacts"));
+        let contacts = JSON.parse(localStorage.getItem("contacts")); //get all contacts from storage
         contacts = contacts.map((c) => {
+          //update them
           if (c.id === this.contact.id) return this.contact;
           return c;
         });
-        localStorage.setItem("contacts", JSON.stringify(contacts));
-        this.showConfirmModal = false;
+        localStorage.setItem("contacts", JSON.stringify(contacts)); //save contacts
+        this.backups = this.$removeLastBackup(this.backups);//remove last backup
+        this.showConfirmModal = false; //close  modal
       }
     },
     canEdit(field) {
-      let NotEditableFields = ["id", "number", "name"];
-      if (NotEditableFields.includes(field.key)) return true;
-      return false;
+      let NotEditableFields = ["id", "number", "name"] //this fields is not editable
+      if (!NotEditableFields.includes(field.key)) return false
+      return true //buttons disabled
     },
   },
   computed: {},
   mounted() {
-    const contacts = JSON.parse(localStorage.getItem("contacts"));
-    this.contact = contacts.find((c) => c.id === +this.$route.params.id);
+    const contacts = JSON.parse(localStorage.getItem("contacts"));//get all contacts from storage
+    this.contact = contacts.find((c) => c.id === +this.$route.params.id);//get by id current contact
     this.fields = Object.keys(this.contact);
-    this.fields = this.fields.map((k) => ({
+    //set contact fields to fields var
+    this.fields = this.fields.map((k) => ({ 
       key: k,
       value: this.contact[k],
       selected: false,
     }));
-    sessionStorage.clear();
-    this.backups = this.$addBackup(this.backups, this.fields);
+    sessionStorage.clear();//clear storage from old backups 
+    this.backups = this.$addBackup(this.backups, this.fields); //add new backup
   },
 };
 </script>

@@ -2,6 +2,7 @@
   <div>
     <h1 v-if="!contact">Контакт не был найден</h1>
     <div v-else>
+      <h2><router-link to="/" class="contact-link">Вернуться к контактам</router-link></h2>
       <h1>Редактировать контакт</h1>
       <div class="fields">
         <div class="field" v-for="field in fields" :key="field.key">

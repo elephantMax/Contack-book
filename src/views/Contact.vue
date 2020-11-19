@@ -9,9 +9,7 @@
           <input
             v-else
             type="text"
-            :disabled="
-              field.key === 'name' || field.key === 'number' ? true : false
-            "
+            :disabled="canEdit(field)"
             :value="field.key"
             ref="fieldKey"
             @keyup.enter="saveField(field)"
@@ -40,20 +38,14 @@
             <template v-else>
               <button
                 class="btn btn-blue"
-                :disabled="field.key === 'id' ? true : false"
+                :disabled="field.key === 'id'"
                 @click="selectField(field)"
               >
                 Редактировать
               </button>
               <button
                 class="btn btn-red"
-                :disabled="
-                  field.key === 'id' ||
-                  field.key === 'name' ||
-                  field.key === 'number'
-                    ? true
-                    : false
-                "
+                :disabled="canEdit(field)"
                 @click="showModal(field.key)"
               >
                 Удалить
@@ -89,8 +81,8 @@
         <div class="panel">
           <button
             class="btn btn-red"
-            @click="showConfirmModal = true"
-            :disabled="currentVerison < 1 ? true : false"
+            @click="confirmModal"
+            :disabled="currentVersion < 1 ? true : false"
           >
             Отменить последнее измененеие
           </button>
@@ -128,13 +120,13 @@ export default {
     fieldValue: null,
     backups: [],
     fields: [],
-    currentVerison: 0,
+    currentVersion: 0,
     showEdit: false,
     selectedField: null,
     messages: [],
   }),
   methods: {
-    selectField(field) {
+    selectField(field = null) {
       this.fields.forEach((f) => {
         f.selected = false;
       });
@@ -166,12 +158,12 @@ export default {
         localStorage.setItem("contacts", JSON.stringify(contacts));
         this.showForm = false;
         this.backups = this.$addBackup(this.backups, this.fields);
-        this.currentVerison++;
+        this.currentVersion++;
       }
     },
     removeField() {
       this.backups = this.$addBackup(this.backups, this.fields);
-      this.currentVerison++;
+      this.currentVersion++;
       this.fields = this.fields.filter((f) => f.key !== this.selectedField);
       delete this.contact[this.selectedField];
       this.selectedField = null;
@@ -183,35 +175,38 @@ export default {
       localStorage.setItem("contacts", JSON.stringify(contacts));
     },
     closeModal(e) {
-      if (e.target.className === "modal" || e.target.className.includes('btn-dark')) this.showConfirmModal = false;
+      if (
+        e.target.className === "modal" ||
+        e.target.className.includes("btn-dark")
+      ) {
+        this.selectedField = null;
+        this.showConfirmModal = false;
+      }
     },
     showModal(key) {
       this.selectedField = key;
     },
+    confirmModal(){
+      this.fields.forEach((f) => {
+        f.selected = false;
+      });
+      this.showConfirmModal = true
+    },
     saveField(field) {
       const fieldKey = this.$refs.fieldKey[0].value;
-      if (!fieldKey || !field.value) return
-     
-      let sameField;
-      this.backups[this.backups.length - 1].forEach((b) => {
-        if (b.key === fieldKey && b.value === field.value) {
-          sameField = true;
-        }
+      if (!fieldKey || !field.value) return;
+      let contacts = JSON.parse(localStorage.getItem("contacts"));
+      delete this.contact[field["key"]];
+      field.key = fieldKey;
+      this.contact[fieldKey] = field["value"];
+      contacts = contacts.map((c) => {
+        if (c.id === this.contact.id) return this.contact;
+        return c;
       });
-      if (!sameField) {
-        let contacts = JSON.parse(localStorage.getItem("contacts"));
-        delete this.contact[field["key"]];
-        field.key = fieldKey;
+      this.backups = this.$addBackup(this.backups, this.fields);
+      this.currentVersion++;
+      localStorage.setItem("contacts", JSON.stringify(contacts));
 
-        this.contact[fieldKey] = field["value"];
-        contacts = contacts.map((c) => {
-          if (c.id === this.contact.id) return this.contact;
-          return c;
-        });
-        this.backups = this.$addBackup(this.backups, this.fields);
-        this.currentVerison++;
-        localStorage.setItem("contacts", JSON.stringify(contacts));
-      }
       field.selected = false;
     },
     resetFieldForm() {
@@ -220,13 +215,14 @@ export default {
       this.fieldValue = null;
     },
     rollBack() {
-      if (this.currentVerison > 0) {
-        this.backups.splice(this.currentVerison);
-        this.fields = this.backups[this.currentVerison - 1];
-        this.currentVerison--;
+      if (this.currentVersion > 0) {
+        this.backups = this.$removeLastBackup(this.backups);
+        this.currentVersion -= 1;
+        this.fields = this.backups[this.currentVersion];
         this.contact = {};
         this.fields.forEach((f) => {
-          this.contact[f.key] = f.value;
+          this.contact[f.key] = f.value
+          f.selected = false
         });
         let contacts = JSON.parse(localStorage.getItem("contacts"));
         contacts = contacts.map((c) => {
@@ -237,7 +233,13 @@ export default {
         this.showConfirmModal = false;
       }
     },
+    canEdit(field) {
+      let NotEditableFields = ["id", "number", "name"];
+      if (NotEditableFields.includes(field.key)) return true;
+      return false;
+    },
   },
+  computed: {},
   mounted() {
     const contacts = JSON.parse(localStorage.getItem("contacts"));
     this.contact = contacts.find((c) => c.id === +this.$route.params.id);

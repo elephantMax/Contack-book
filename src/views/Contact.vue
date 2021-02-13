@@ -69,7 +69,7 @@
             placeholder="Значение"
             class="field-input"
           />
-          <button class="btn btn-green" type="submit">Доабвить</button>
+          <button class="btn btn-green" type="submit">Добавить</button>
           <button class="btn btn-red" @click.prevent="resetFieldForm">
             Отмена
           </button>
@@ -141,10 +141,12 @@ export default {
           this.messages.push("duplicate keys");
         }
       });
-      if (!this.fieldName && !this.fieldValue) {
+
+      if (!this.fieldValue || !this.fieldName) {
         this.messages.push("fields is required");
       }
 
+      
       if (!this.messages.length) {
         this.fields.push({
           //add new field to fields arr
